@@ -8,7 +8,7 @@ function renderTopNav() {
     '<a class="nav-logo" href="#" onclick="navigate(\'home\');return false;"><img src="' + LOGO + '" alt="Crowd Analyzing" /></a>' +
     '<div style="flex:1;display:flex;align-items:center;gap:4px;">' +
       '<button class="nav-link ' + (state.view==='home'?'active':'') + '" onclick="navigate(\'home\')">Home</button>' +
-      '<button class="nav-link" onclick="navigate(\'home\')">Events</button>' +
+      '<button class="nav-link" onclick="scrollToEvents()">Events</button>' +
     '</div>' +
     '<div style="display:flex;align-items:center;gap:16px;">' +
       '<div style="position:relative;">' +

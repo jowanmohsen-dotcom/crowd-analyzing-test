@@ -32,6 +32,13 @@ function notifIcon(type, sev) {
   return '\u2139\uFE0F';
 }
 
+function scrollToEvents() {
+  if (state.view !== 'home') { navigate('home'); setTimeout(function() { var el = document.getElementById('events-section'); if (el) el.scrollIntoView({ behavior: 'smooth' }); }, 300); return; }
+  var el = document.getElementById('events-section');
+  if (el) el.scrollIntoView({ behavior: 'smooth' });
+}
+window.scrollToEvents = scrollToEvents;
+
 function notifColor(sev) {
   if (sev === 'critical') return '#EF4444';
   if (sev === 'high') return '#F59E0B';

@@ -6,7 +6,8 @@ function renderLogin() {
   var roleLabels = ['Customer','Organizer','Staff'];
   return '<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;position:relative;overflow:hidden;background:var(--dark);">' +
     '<div class="grid-bg"></div>' +
-    '<div style="position:absolute;inset:0;background:radial-gradient(ellipse 700px 500px at 30% 50%,rgba(233,22,102,0.1) 0%,transparent 70%),radial-gradient(ellipse 500px 400px at 70% 40%,rgba(255,180,0,0.07) 0%,transparent 60%);pointer-events:none;"></div>' +
+    '<div style="position:absolute;inset:0;background:radial-gradient(ellipse 700px 500px at 30% 50%,rgba(168,18,80,0.08) 0%,transparent 70%),radial-gradient(ellipse 500px 400px at 70% 40%,rgba(184,120,10,0.05) 0%,transparent 60%);pointer-events:none;"></div>' +
+    '<button class="btn-ghost" style="position:absolute;top:24px;left:24px;z-index:10;" onclick="navigate(\'home\')">\u2190 Back</button>' +
     '<div class="card" style="width:100%;max-width:420px;padding:36px;position:relative;z-index:1;background:rgba(255,255,255,0.06);backdrop-filter:blur(16px);">' +
       '<div style="text-align:center;margin-bottom:28px;">' +
         '<img src="' + LOGO + '" alt="Crowd Analyzing" style="height:50px;margin-bottom:16px;" />' +
@@ -66,6 +67,13 @@ async function doLogin(e) {
 
   state.user = result.user;
   showToast('Welcome back, ' + result.user.name + '!', 'success');
+  if (state.pendingPurchaseId) {
+    var pid = state.pendingPurchaseId;
+    state.pendingPurchaseId = null;
+    navigate('detail', { id: pid });
+    setTimeout(function() { showPaymentModal(pid); }, 400);
+    return;
+  }
   var dest = result.user.role === 'organizer' ? 'dashboard' : result.user.role === 'staff' ? 'scan' : 'home';
   navigate(dest);
 }

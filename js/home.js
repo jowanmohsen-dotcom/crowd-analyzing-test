@@ -46,7 +46,7 @@ function renderHome() {
       '</div>' +
     '</div>' +
   '</section>' +
-  '<section style="max-width:1200px;margin:0 auto;padding:48px 32px;">' +
+  '<section id="events-section" style="max-width:1200px;margin:0 auto;padding:48px 32px;">' +
     '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:28px;flex-wrap:wrap;gap:16px;">' +
       '<h2 style="font-family:\'Montserrat\',sans-serif;font-weight:800;font-size:22px;">Upcoming Events</h2>' +
       '<div class="tab-bar" style="flex-wrap:wrap;">' +

@@ -78,7 +78,7 @@ function renderDetail() {
             '<div style="display:flex;justify-content:space-between;font-size:13px;"><span style="color:var(--muted);">\uD83C\uDFAB Tickets Available</span><span style="font-weight:500;">' + (ev.cap - ev.tickets).toLocaleString() + '</span></div>' +
             '<div style="display:flex;justify-content:space-between;font-size:13px;"><span style="color:var(--muted);">\u26A0\uFE0F Active Alerts</span><span style="font-weight:500;color:' + (ev.alerts > 0 ? '#EF4444' : '#22C55E') + ';">' + ev.alerts + '</span></div>' +
           '</div>' +
-          '<button class="btn-primary" style="width:100%;justify-content:center;font-size:15px;padding:14px;" onclick="showToast(\'Redirecting to ticket purchase\u2026\')">\uD83C\uDFAD Buy Ticket</button>' +
+          '<button class="btn-primary" style="width:100%;justify-content:center;font-size:15px;padding:14px;" onclick="startTicketPurchase(' + ev.id + ')">\uD83C\uDFAD Buy Ticket</button>' +
           '<div style="margin-top:16px;display:flex;align-items:center;justify-content:space-between;padding:12px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:10px;">' +
             '<div><div style="font-family:\'Montserrat\',sans-serif;font-weight:700;font-size:13px;margin-bottom:2px;">Crowd Alerts</div><div style="font-size:12px;color:var(--muted);">Get notified of high density</div></div>' +
             '<label style="position:relative;display:inline-block;width:44px;height:24px;cursor:pointer;">' +
@@ -92,6 +92,105 @@ function renderDetail() {
     '</div>' +
   '</div>';
 }
+
+function startTicketPurchase(evId) {
+  if (!state.user) {
+    state.pendingPurchaseId = evId;
+    showToast('Please sign in to purchase tickets.', 'error');
+    setTimeout(function() { navigate('login'); }, 1200);
+    return;
+  }
+  showPaymentModal(evId);
+}
+window.startTicketPurchase = startTicketPurchase;
+
+function showPaymentModal(evId) {
+  var ev = EVENTS.find(function(e) { return e.id === evId; }) || EVENTS[0];
+  var price = ev.price || 49;
+  var existing = document.getElementById('payment-modal');
+  if (existing) existing.remove();
+
+  var modal = document.createElement('div');
+  modal.id = 'payment-modal';
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.75);backdrop-filter:blur(6px);z-index:9000;display:flex;align-items:center;justify-content:center;padding:24px;';
+  modal.innerHTML =
+    '<div class="card" style="width:100%;max-width:480px;padding:32px;position:relative;background:var(--dark2);">' +
+      '<button onclick="document.getElementById(\'payment-modal\').remove()" style="position:absolute;top:16px;right:16px;background:none;border:none;color:var(--muted);font-size:22px;cursor:pointer;line-height:1;">&times;</button>' +
+      '<h2 style="font-family:\'Montserrat\',sans-serif;font-weight:800;font-size:20px;margin-bottom:4px;">\uD83C\uDFAD Purchase Ticket</h2>' +
+      '<p style="color:var(--muted);font-size:13px;margin-bottom:24px;">' + ev.name + ' &mdash; ' + ev.date + '</p>' +
+
+      '<div style="background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:24px;display:flex;justify-content:space-between;align-items:center;">' +
+        '<div style="font-size:13px;color:var(--muted);">Attendee</div>' +
+        '<div style="font-family:\'Montserrat\',sans-serif;font-weight:700;font-size:13px;">' + state.user.name + '</div>' +
+      '</div>' +
+
+      '<form onsubmit="processPayment(event,' + evId + ')" id="payment-form">' +
+        '<div style="margin-bottom:16px;">' +
+          '<label class="field-label">Number of Tickets</label>' +
+          '<select class="input-field" id="pay-qty" onchange="updateTotal(' + price + ')">' +
+            [1,2,3,4,5].map(function(n){ return '<option value="'+n+'">'+n+' ticket'+(n>1?'s':'')+' — $'+(n*price).toFixed(2)+'</option>'; }).join('') +
+          '</select>' +
+        '</div>' +
+        '<div style="margin-bottom:16px;">' +
+          '<label class="field-label">Cardholder Name</label>' +
+          '<input type="text" class="input-field" id="pay-name" placeholder="Name on card" required value="' + state.user.name + '" />' +
+        '</div>' +
+        '<div style="margin-bottom:16px;">' +
+          '<label class="field-label">Card Number</label>' +
+          '<input type="text" class="input-field" id="pay-card" placeholder="1234 5678 9012 3456" maxlength="19" required oninput="formatCardNumber(this)" />' +
+        '</div>' +
+        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:24px;">' +
+          '<div><label class="field-label">Expiry Date</label><input type="text" class="input-field" id="pay-exp" placeholder="MM / YY" maxlength="7" required oninput="formatExpiry(this)" /></div>' +
+          '<div><label class="field-label">CVV</label><input type="text" class="input-field" id="pay-cvv" placeholder="&bull;&bull;&bull;" maxlength="3" required /></div>' +
+        '</div>' +
+        '<div style="background:rgba(168,18,80,0.08);border:1px solid rgba(168,18,80,0.2);border-radius:10px;padding:14px;display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">' +
+          '<span style="font-size:13px;color:var(--muted);">Total</span>' +
+          '<span id="pay-total" style="font-family:\'Montserrat\',sans-serif;font-weight:900;font-size:22px;">$' + price.toFixed(2) + '</span>' +
+        '</div>' +
+        '<button type="submit" class="btn-primary" style="width:100%;justify-content:center;font-size:15px;padding:14px;">\uD83D\uDD12 Confirm & Pay</button>' +
+      '</form>' +
+    '</div>';
+
+  document.body.appendChild(modal);
+  modal.addEventListener('click', function(e) { if (e.target === modal) modal.remove(); });
+}
+window.showPaymentModal = showPaymentModal;
+
+function formatCardNumber(input) {
+  var v = input.value.replace(/\D/g,'').substring(0,16);
+  input.value = v.replace(/(.{4})/g,'$1 ').trim();
+}
+window.formatCardNumber = formatCardNumber;
+
+function formatExpiry(input) {
+  var v = input.value.replace(/\D/g,'').substring(0,4);
+  if (v.length >= 3) v = v.substring(0,2) + ' / ' + v.substring(2);
+  input.value = v;
+}
+window.formatExpiry = formatExpiry;
+
+function updateTotal(price) {
+  var qty = parseInt(document.getElementById('pay-qty').value) || 1;
+  var el = document.getElementById('pay-total');
+  if (el) el.textContent = '$' + (qty * price).toFixed(2);
+}
+window.updateTotal = updateTotal;
+
+async function processPayment(e, evId) {
+  e.preventDefault();
+  var btn = document.querySelector('#payment-form button[type="submit"]');
+  if (btn) { btn.disabled = true; btn.textContent = 'Processing\u2026'; }
+
+  await new Promise(function(r){ setTimeout(r, 1800); });
+
+  var qty = parseInt(document.getElementById('pay-qty').value) || 1;
+  var ev = EVENTS.find(function(x){ return x.id === evId; });
+  var evName = ev ? ev.name : 'Event';
+
+  document.getElementById('payment-modal').remove();
+  showToast('\u2714 ' + qty + ' ticket'+(qty>1?'s':'')+' purchased for ' + evName + '!', 'success');
+}
+window.processPayment = processPayment;
 
 function toggleAlertSwitch(el) {
   var track = document.getElementById('toggle-track');
