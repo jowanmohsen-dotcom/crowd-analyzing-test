@@ -62,20 +62,27 @@ function renderEdit() {
   '</div>';
 }
 
-function doSaveEvent(e, id) {
+async function doSaveEvent(e, id) {
   e.preventDefault();
-  var idx = EVENTS.findIndex(function(ev) { return ev.id === id; });
-  if (idx !== -1) {
-    EVENTS[idx].name = document.getElementById('ef-name').value;
-    EVENTS[idx].cat = document.getElementById('ef-cat').value;
-    EVENTS[idx].desc = document.getElementById('ef-desc').value;
-    EVENTS[idx].loc = document.getElementById('ef-loc').value;
-    EVENTS[idx].city = document.getElementById('ef-city').value;
-    EVENTS[idx].cap = parseInt(document.getElementById('ef-cap').value) || EVENTS[idx].cap;
-    EVENTS[idx].level = document.getElementById('ef-level').value;
-    EVENTS[idx].org = document.getElementById('ef-org').value;
+  var ev = EVENTS.find(function(x) { return x.id === id; });
+  var updates = {
+    name:  document.getElementById('ef-name').value,
+    cat:   document.getElementById('ef-cat').value,
+    desc:  document.getElementById('ef-desc').value,
+    loc:   document.getElementById('ef-loc').value,
+    city:  document.getElementById('ef-city').value,
+    cap:   parseInt(document.getElementById('ef-cap').value) || (ev ? ev.cap : 0),
+    level: document.getElementById('ef-level').value,
+    org:   document.getElementById('ef-org').value
+  };
+  try {
+    await dbUpdateEvent(id, updates);
+    showToast('Event updated successfully!', 'success');
+  } catch(err) {
+    showToast('Failed to update event. Check Firebase config.', 'error');
+    console.error(err);
+    return;
   }
-  showToast('Event updated successfully!', 'success');
   navigate('dashboard');
 }
 window.doSaveEvent = doSaveEvent;

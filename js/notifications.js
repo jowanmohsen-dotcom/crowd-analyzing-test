@@ -36,6 +36,9 @@ function renderNotifications() {
             '<p style="font-size:13px;color:var(--muted);margin-bottom:6px;">' + n.msg + '</p>' +
             '<span style="font-size:12px;color:rgba(180,175,220,0.4);">\uD83D\uDD50 ' + n.time + '</span>' +
           '</div>' +
+          ((n.sev === 'high' || n.sev === 'critical')
+            ? '<button class="btn-danger" style="font-size:11px;padding:6px 12px;white-space:nowrap;align-self:center;" onclick="sendAlertFromNotifById(' + n.id + ')">\uD83D\uDCE7 Email Alert</button>'
+            : '') +
         '</div>';
       }).join('') +
       (filtered.length === 0 ? '<div style="text-align:center;padding:60px;color:var(--muted);"><div style="font-size:48px;margin-bottom:16px;">\uD83D\uDD14</div><div style="font-family:\'Montserrat\',sans-serif;font-weight:700;">No notifications in this category</div></div>' : '') +

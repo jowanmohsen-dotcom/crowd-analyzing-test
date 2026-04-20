@@ -37,7 +37,7 @@ function renderHome() {
     '<div class="grid-bg"></div>' +
     '<div style="position:relative;z-index:1;max-width:760px;margin:0 auto;text-align:center;">' +
       '<div class="badge badge-cat" style="margin-bottom:20px;font-size:12px;padding:5px 14px;">\u2728 AI-Powered Crowd Intelligence</div>' +
-      '<h1 style="font-family:\'Montserrat\',sans-serif;font-weight:900;font-size:clamp(36px,6vw,64px);line-height:1.1;letter-spacing:-0.03em;margin-bottom:20px;">Discover Events<br/><span class="grad-text">Near You</span></h1>' +
+      '<h1 style="font-family:\'Montserrat\',sans-serif;font-weight:900;font-size:clamp(36px,6vw,64px);line-height:1.1;letter-spacing:-0.03em;margin-bottom:20px;">Discover<br/><span class="grad-text">Events</span></h1>' +
       '<p style="color:var(--muted);font-size:18px;max-width:520px;margin:0 auto 36px;">Real-time crowd predictions and AI-powered insights to make every event experience unforgettable.</p>' +
       '<div style="display:flex;gap:12px;max-width:540px;margin:0 auto;position:relative;">' +
         '<input class="input-field" style="flex:1;font-size:15px;padding:14px 20px 14px 46px;" placeholder="Search events, artists, venues\u2026" />' +

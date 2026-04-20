@@ -23,11 +23,11 @@ function renderLogin() {
       '<form onsubmit="doLogin(event)" id="login-form">' +
         '<div style="margin-bottom:16px;">' +
           '<label class="field-label">Email Address</label>' +
-          '<input type="email" class="input-field" placeholder="you@example.com" required id="login-email" value="demo@example.com" />' +
+          '<input type="email" class="input-field" placeholder="you@example.com" required id="login-email" />' +
         '</div>' +
         '<div style="margin-bottom:24px;">' +
           '<label class="field-label">Password</label>' +
-          '<input type="password" class="input-field" placeholder="\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022" required id="login-pass" value="password" />' +
+          '<input type="password" class="input-field" placeholder="\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022" required id="login-pass" />' +
         '</div>' +
         '<button type="submit" class="btn-primary" style="width:100%;justify-content:center;font-size:15px;padding:14px;">Sign In \u2192</button>' +
       '</form>' +
@@ -48,12 +48,25 @@ function updateRoleTabs() {
 }
 window.updateRoleTabs = updateRoleTabs;
 
-function doLogin(e) {
+async function doLogin(e) {
   e.preventDefault();
-  var names = { customer: 'Alex Johnson', organizer: 'Sarah Mitchell', staff: 'Mike Torres' };
-  state.user = { name: names[state.loginRole], role: state.loginRole };
-  showToast('Welcome, ' + state.user.name + '!', 'success');
-  var dest = state.loginRole === 'organizer' ? 'dashboard' : state.loginRole === 'staff' ? 'scan' : 'home';
+  var email = document.getElementById('login-email').value.trim();
+  var pass  = document.getElementById('login-pass').value;
+
+  var btn = document.querySelector('#login-form button[type="submit"]');
+  if (btn) btn.disabled = true;
+
+  var result = await dbLoginUser(email, pass);
+
+  if (result.error) {
+    showToast(result.error, 'error');
+    if (btn) btn.disabled = false;
+    return;
+  }
+
+  state.user = result.user;
+  showToast('Welcome back, ' + result.user.name + '!', 'success');
+  var dest = result.user.role === 'organizer' ? 'dashboard' : result.user.role === 'staff' ? 'scan' : 'home';
   navigate(dest);
 }
 window.doLogin = doLogin;

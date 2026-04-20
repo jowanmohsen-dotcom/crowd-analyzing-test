@@ -1,10 +1,15 @@
 // ============================================================
 //  NAVIGATION
 // ============================================================
-function navigate(view, params) {
+var DATA_VIEWS = ['home','dashboard','reports','detail','notifications'];
+
+async function navigate(view, params) {
   params = params || {};
   state.view = view;
   state.params = params;
+  if (DATA_VIEWS.indexOf(view) !== -1) {
+    await loadAllData();
+  }
   render();
 }
 window.navigate = navigate;
@@ -51,5 +56,15 @@ function render() {
   window.scrollTo(0, 0);
 }
 
-// Boot
-render();
+// Boot — seed Firestore on first run, then load data and render
+async function initApp() {
+  try {
+    await seedIfEmpty();
+    await loadAllData();
+  } catch(err) {
+    console.error('Firebase init failed:', err);
+    showToast('Could not connect to database. Check Firebase config.', 'error');
+  }
+  render();
+}
+initApp();

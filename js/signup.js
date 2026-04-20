@@ -69,22 +69,30 @@ function updateSignupRoleTabs() {
 }
 window.updateSignupRoleTabs = updateSignupRoleTabs;
 
-function doSignup(e) {
+async function doSignup(e) {
   e.preventDefault();
-  var fname = document.getElementById('signup-fname').value.trim();
-  var lname = document.getElementById('signup-lname').value.trim();
-  var pass = document.getElementById('signup-pass').value;
+  var fname   = document.getElementById('signup-fname').value.trim();
+  var lname   = document.getElementById('signup-lname').value.trim();
+  var email   = document.getElementById('signup-email').value.trim();
+  var pass    = document.getElementById('signup-pass').value;
   var confirm = document.getElementById('signup-confirm').value;
+  var role    = state.signupRole || 'customer';
 
-  if (pass !== confirm) {
-    showToast('Passwords do not match!', 'error');
+  if (pass !== confirm) { showToast('Passwords do not match!', 'error'); return; }
+
+  var btn = document.querySelector('#signup-form button[type="submit"]');
+  if (btn) btn.disabled = true;
+
+  var result = await dbRegisterUser(email, pass, fname + ' ' + lname, role);
+
+  if (result.error) {
+    showToast(result.error, 'error');
+    if (btn) btn.disabled = false;
     return;
   }
 
-  var role = state.signupRole || 'customer';
-  state.user = { name: fname + ' ' + lname, role: role };
+  state.user = result.user;
   showToast('Account created! Welcome, ' + fname + '!', 'success');
-  var dest = role === 'organizer' ? 'dashboard' : 'home';
-  navigate(dest);
+  navigate(role === 'organizer' ? 'dashboard' : 'home');
 }
 window.doSignup = doSignup;

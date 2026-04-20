@@ -21,7 +21,7 @@ function renderDashboard() {
             '<h1 style="font-family:\'Montserrat\',sans-serif;font-weight:900;font-size:28px;letter-spacing:-0.02em;margin-bottom:4px;">Dashboard</h1>' +
             '<p style="font-size:13px;color:var(--muted);">\uD83D\uDCC5 ' + today + '</p>' +
           '</div>' +
-          '<button class="btn-primary" onclick="showToast(\'Alert sent to all attendees!\',\'success\')">\uD83D\uDCE2 Send Alert</button>' +
+          '<button class="btn-primary" onclick="sendAlertForEvent(EVENTS.filter(function(e){return e.level===\'high\';})[0]||EVENTS[0])">\uD83D\uDCE2 Send Alert</button>' +
         '</div>' +
         (highEvents.length > 0 ?
           '<div class="alert-banner">' +

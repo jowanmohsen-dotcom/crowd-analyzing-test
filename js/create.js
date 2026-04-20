@@ -62,7 +62,7 @@ function renderCreate() {
   '</div>';
 }
 
-function doCreateEvent(e) {
+async function doCreateEvent(e) {
   e.preventDefault();
   var name = document.getElementById('f-name').value;
   var cat = document.getElementById('f-cat').value;
@@ -77,8 +77,15 @@ function doCreateEvent(e) {
   var dateObj = dateRaw ? new Date(dateRaw) : new Date();
   var dateFmt = dateObj.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
   var newId = EVENTS.length > 0 ? Math.max.apply(null, EVENTS.map(function(ev){return ev.id;})) + 1 : 1;
-  EVENTS.push({ id:newId, name:name, cat:cat, loc:loc, city:city, date:dateFmt, time:time, endTime:endTime, cap:cap, tickets:0, attend:0, level:'low', pct:0, desc:desc, peak:'TBD', best:'Anytime', org:org, alerts:0 });
-  showToast('Event "' + name + '" created successfully!', 'success');
+  var newEv = { id:newId, name:name, cat:cat, loc:loc, city:city, date:dateFmt, time:time, endTime:endTime, cap:cap, tickets:0, attend:0, level:'low', pct:0, desc:desc, peak:'TBD', best:'Anytime', org:org, alerts:0 };
+  try {
+    await dbAddEvent(newEv);
+    showToast('Event "' + name + '" created successfully!', 'success');
+  } catch(err) {
+    showToast('Failed to save event. Check Firebase config.', 'error');
+    console.error(err);
+    return;
+  }
   navigate('dashboard');
 }
 window.doCreateEvent = doCreateEvent;
