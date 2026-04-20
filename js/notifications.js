@@ -36,7 +36,7 @@ function renderNotifications() {
             '<p style="font-size:13px;color:var(--muted);margin-bottom:6px;">' + n.msg + '</p>' +
             '<span style="font-size:12px;color:rgba(180,175,220,0.4);">\uD83D\uDD50 ' + n.time + '</span>' +
           '</div>' +
-          ((n.sev === 'high' || n.sev === 'critical')
+          ((n.sev === 'high' || n.sev === 'critical') && state.user && state.user.role === 'organizer'
             ? '<button class="btn-danger" style="font-size:11px;padding:6px 12px;white-space:nowrap;align-self:center;" onclick="sendAlertFromNotifById(' + n.id + ')">\uD83D\uDCE7 Email Alert</button>'
             : '') +
         '</div>';
